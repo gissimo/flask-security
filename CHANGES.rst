@@ -14,6 +14,12 @@ Fixes
 - (:issue:`1263`) :py:data:`SECURITY_CACHE_CONTROL` directives were added to every
   application response instead of just responses from Flask-Security endpoints
   as documented. (Ceirced)
+- (:issue:`1212`) Newly introduced :py:meth:`.UserMixin.is_locked` logic is inverted.
+
+Backwards Compatibility Concerns
++++++++++++++++++++++++++++++++++
+- The fix for the inverted `is_locked` logic will require any application using it
+  to invert their logic.
 
 
 Version 5.8.1
