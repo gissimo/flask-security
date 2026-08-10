@@ -8,6 +8,13 @@ Version 5.9.0
 
 Released TBD
 
+This release adds support for refresh tokens (finally!). In addition there are
+several configuration changes that try to align Flask-Security with latest
+best-practices.
+
+Please read these notes carefully - in particular the change to the default auth
+token lifetime might severely impact some applications.
+
 Features & Improvements
 +++++++++++++++++++++++
 - (:issue:`1206`) Add support for refresh tokens. See :ref:`token_topic`
@@ -21,7 +28,10 @@ Features & Improvements
 - (:issue:`1153`) Enable localization of %(within)s variables using humanize
 - (:pr:`1249`) Add link expiration to confirmation and reset password email templates.
 - (:issue:`536` Add template path configuration variables for all email templates.
-- (:issue:`1254`) Webauthn/passkey name input value is now sanitized and normalized.
+- (:issue:`1254`) Webauthn/passkey name input value is now sanitized and normalized. A new utility method
+  :py:meth:`flask_security.input_svn` is now used and is available for applications to use.
+- (:pr:`xxx`) Username validation and normalization now uses the new :py:meth:`flask_security.input_svn` utility. This has some
+  backwards compatibility concerns - see below.
 - (:pr:`1259`) Allow redirects to exactly :py:data:`SECURITY_REDIRECT_BASE_DOMAIN` by adding '.' to :py:data:`SECURITY_REDIRECT_ALLOWED_SUBDOMAINS`.
 
 Fixes
@@ -70,11 +80,20 @@ Backwards Compatibility Concerns
   :py:data:`SECURITY_USERNAME_ENABLE` you must now install ``nh3`` (included in the
   ``common`` extra) rather than ``bleach``.
 - Webauthn names are now sanitized, validated for certain allowable characters
-  and normalized. It is possible that some existing names would now be
+  and normalized. It is possible that some existing names could now be
   considered illegal and won't match (so can't be deleted via API). The allowed
   character categories can be set with :py:data:`SECURITY_WAN_NAME_ALLOWED_CHARS`.
   The module ``nh3`` is used to sanitize input - the application must have that
   package installed.
+- Username form input now uses the newer input sanitization and normalization utility class.
+  The configuration variable ``SECURITY_USERNAME_NORMALIZE_FORM`` has been replaced
+  with :py:data:`SECURITY_INPUT_NORMALIZE_FORM` (default is still "NKFD"). There is a new configuration
+  option :py:data:`SECURITY_USERNAME_ALLOWED_CHARS` which can be used to change
+  which unicode character classes are permitted in the username for validation
+  (the default is ``["L", "N"]`` which is the same as before).
+  The error message ``SECURITY_MSG_USERNAME_ILLEGAL_CHARACTERS`` has been replaced with
+  ``SECURITY_MSG_INVALID_INPUT``.
+- The UsernameUtil.check_username method has been removed.
 
 Notes
 +++++

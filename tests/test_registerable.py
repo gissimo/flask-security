@@ -721,7 +721,7 @@ def test_username_errors(app, client, get_message):
     )
     assert response.status_code == 400
     assert (
-        get_message("USERNAME_ILLEGAL_CHARACTERS")
+        get_message("INVALID_INPUT")
         == response.json["response"]["field_errors"]["username"][0].encode()
     )
 
@@ -745,6 +745,23 @@ def test_username_errors(app, client, get_message):
         get_message("USERNAME_NOT_PROVIDED")
         == response.json["response"]["errors"][0].encode()
     )
+
+
+@pytest.mark.settings(
+    username_enable=True, username_required=True, username_allowed_chars=None
+)
+def test_username_anything_goes(app, client, get_message):
+    # allow app to allow any characters in a username
+    data = dict(
+        email="dude@lp.com",
+        username="hi there?",
+        password="awesome sunset",
+        password_confirm="awesome sunset",
+    )
+    response = client.post(
+        "/register", json=data, headers={"Content-Type": "application/json"}
+    )
+    assert response.status_code == 200
 
 
 def test_username_not_enabled(app, client, get_message):

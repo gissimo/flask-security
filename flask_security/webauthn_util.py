@@ -161,23 +161,32 @@ class WebauthnUtil:
 
     def name_svn(self, value: str) -> tuple[str | None, str | None]:
         """
-        Sanitize, validate, and normalize form input
+        Sanitize, validate, and normalize form input.
 
         Return value is a tuple (msg, clean_value). msg will be None if
         properly validated.
+        The config variable :py:data:`SECURITY_WAN_NAME_ALLOWED_CHARS` specifies
+        which unicode character classes are allowed (if None then all are allowed).
+
+        The config variable :py:data:`SECURITY_INPUT_NORMALIZE_FORM` specifies
+        the input to unicode normalization (if None then no normalization is performed).
 
         For webauthn names, allow letters, numbers, and some punctuation.
         """
-        clean_input = input_svn(
+        reason, clean_input = input_svn(
             value, cv("WAN_NAME_ALLOWED_CHARS"), cv("INPUT_NORMALIZE_FORM")
         )
         if clean_input is None:
-            return get_message("INVALID_INPUT")[0], None
+            msg = (
+                "WEBAUTHN_NAME_DISALLOWED_CHARACTERS"
+                if reason == "unallowed"
+                else "INVALID_INPUT"
+            )
+            return get_message(msg)[0], None
         if len(clean_input) > cv("WAN_NAME_MAX_LENGTH"):
+            msg = "INVALID_INPUT_LENGTH"
             return (
-                get_message("INVALID_INPUT_LENGTH", length=cv("WAN_NAME_MAX_LENGTH"))[
-                    0
-                ],
+                get_message(msg, length=cv("WAN_NAME_MAX_LENGTH"))[0],
                 None,
             )
         return None, clean_input

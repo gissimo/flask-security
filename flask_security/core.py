@@ -405,9 +405,9 @@ _default_config: dict[str, t.Any] = {
     "JOIN_USER_ROLES": True,
     "USERNAME_ENABLE": False,
     "USERNAME_REQUIRED": False,
+    "USERNAME_ALLOWED_CHARS": ["L", "N"],
     "USERNAME_MIN_LENGTH": 4,
     "USERNAME_MAX_LENGTH": 32,
-    "USERNAME_NORMALIZE_FORM": "NFKD",
     "WEBAUTHN": False,
     "WAN_CHALLENGE_BYTES": None,  # uses system default
     "WAN_POST_REGISTER_VIEW": ".wan_register",  # endpoint or URL
@@ -626,10 +626,6 @@ _default_messages = {
         ),
         "error",
     ),
-    "USERNAME_ILLEGAL_CHARACTERS": (
-        _("Username contains illegal characters"),
-        "error",
-    ),
     "USERNAME_DISALLOWED_CHARACTERS": (
         _("Username can contain only letters and numbers"),
         "error",
@@ -653,6 +649,13 @@ _default_messages = {
     ),
     "WEBAUTHN_NAME_NOT_FOUND": (
         _("%(name)s not registered with current user."),
+        "error",
+    ),
+    "WEBAUTHN_NAME_DISALLOWED_CHARACTERS": (
+        _(
+            "Passkey nicknames can contain only letters, numbers,"
+            " and limited punctuation."
+        ),
         "error",
     ),
     "WEBAUTHN_CREDENTIAL_DELETED": (
