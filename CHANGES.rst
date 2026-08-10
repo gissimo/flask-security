@@ -33,6 +33,9 @@ Fixes
   username, identity, name, phone, refresh token, recovery/2FA code, ...) to a
   non-string value (e.g. a dict), which used to crash with an unhandled
   ``TypeError`` instead of failing validation cleanly. (miettal)
+- (:issue:`1263`) :py:data:`SECURITY_CACHE_CONTROL` directives were added to every
+  application response instead of just responses from Flask-Security endpoints
+  as documented.
 
 
 Docs and Chores

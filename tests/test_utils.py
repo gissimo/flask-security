@@ -96,8 +96,9 @@ def verify_token(client_nc, token, status=None):
         "/token",
         headers={"Content-Type": "application/json", "Authentication-Token": token},
     )
-    assert response.cache_control.private
-    assert response.cache_control.no_store
+    # /token is an application endpoint - SECURITY_CACHE_CONTROL must not
+    # be applied to it (see issue #1263).
+    assert "Cache-Control" not in response.headers
     if status:
         assert response.status_code == status
     else:

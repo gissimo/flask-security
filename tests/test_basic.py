@@ -1373,3 +1373,12 @@ def test_override_cache_control(app, client_nc):
 def test_no_cache_control(app, client_nc):
     response = json_authenticate(client_nc)
     assert "Cache-Control" not in response.headers
+
+
+def test_cache_control_not_on_app_endpoints(app, client):
+    # SECURITY_CACHE_CONTROL applies to Flask-Security endpoints only -
+    # responses from application endpoints must not be touched.
+    response = client.get("/login")
+    assert response.cache_control.no_store
+    response = client.get("/")
+    assert "Cache-Control" not in response.headers
