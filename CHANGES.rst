@@ -3,6 +3,16 @@ Flask-Security Changelog
 
 Here you can see the full list of changes between each Flask-Security release.
 
+Version 5.8.2
+-------------
+
+Released xxx
+
+Fixes
++++++
+- (:pr:`xx`) Fix for GHSA-f66q-9rf6-8795 - WebAuthn reauthentication freshness bypass. (tonghuaroot)
+
+
 Version 5.8.1
 -------------
 
