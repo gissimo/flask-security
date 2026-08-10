@@ -133,6 +133,9 @@ These configuration keys are used globally across all features.
         This default setting is to ensure that out of the box, Flask-Security responses
         which might contain sensitive information aren't cached.
         Please see https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control#cache_directives.
+        Responses from your own application endpoints (including endpoints protected with
+        a Flask-Security decorator, such as token-authenticated APIs) are not modified -
+        set the Cache-Control header there yourself if needed.
 
     .. note::
         Flask itself adds the 'Vary: Cookie' header to all responses that access the session (cookie).

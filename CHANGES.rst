@@ -10,7 +10,10 @@ Released xxx
 
 Fixes
 +++++
-- (:pr:`xx`) Fix for GHSA-f66q-9rf6-8795 - WebAuthn reauthentication freshness bypass. (tonghuaroot)
+- (:pr:`1265`) Fix for GHSA-f66q-9rf6-8795 - WebAuthn reauthentication freshness bypass. (tonghuaroot)
+- (:issue:`1263`) :py:data:`SECURITY_CACHE_CONTROL` directives were added to every
+  application response instead of just responses from Flask-Security endpoints
+  as documented. (Ceirced)
 
 
 Version 5.8.1
