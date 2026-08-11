@@ -15,6 +15,7 @@ Fixes
   application response instead of just responses from Flask-Security endpoints
   as documented. (Ceirced)
 - (:issue:`1212`) Newly introduced :py:meth:`.UserMixin.is_locked` logic is inverted.
+- (:issue:`1244`) Fix login form remember me checkbox.
 
 Backwards Compatibility Concerns
 +++++++++++++++++++++++++++++++++
