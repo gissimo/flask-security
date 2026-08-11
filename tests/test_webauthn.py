@@ -33,6 +33,7 @@ from tests.test_utils import (
     setup_tf_sms,
     verify_token,
     check_signals,
+    get_form_input,
 )
 
 from flask_security import (
@@ -1589,7 +1590,7 @@ def test_remember_token(client):
     assert client.get_cookie("remember_token")
     client.delete_cookie("session")
     response = client.get("/profile")
-    assert b"profile" in response.data
+    assert b"Profile Page" in response.data
 
 
 @pytest.mark.two_factor()
@@ -1868,3 +1869,12 @@ def test_csrf(app, client, get_message):
     data["csrf_token"] = csrf_token
     response = client.post(response_url, data=data)
     assert check_location(app, response.location, "/post-login")
+
+
+@pytest.mark.settings(default_remember_me=True)
+def test_remember_login_form(app, client):
+    # ensure form has the checkbox set if default set.
+    response = client.get("/wan-signin")
+    assert response.status_code == 200
+    r = get_form_input(response, "remember")
+    assert "checked" in r
