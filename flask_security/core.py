@@ -1214,7 +1214,7 @@ class UserMixin(BaseUserMixin):
 
         .. versionadded:: 5.8.0
         """
-        return True
+        return False
 
 
 class WebAuthnMixin:
