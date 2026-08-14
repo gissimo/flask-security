@@ -1268,6 +1268,28 @@ def test_verify_next(app, client, get_message):
     )
     assert response.location == "http://localhost/mynext"
 
+    # form.next (no query param)
+    response = client.post(
+        "/auth/",
+        data=dict(password="password", next="http://localhost/formnext"),
+        follow_redirects=False,
+    )
+    assert response.location == "http://localhost/formnext"
+
+    # GET should copy ?next into the hidden form field
+    response = client.get("/auth/?next=/profile")
+    assert b'name="next"' in response.data
+    assert b'value="/profile"' in response.data
+
+    # invalid form.next is rejected with INVALID_REDIRECT
+    response = client.post(
+        "/auth/",
+        data=dict(password="password", next="http://evil.example/phish"),
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    assert get_message("INVALID_REDIRECT") in response.data
+
 
 @pytest.mark.webauthn(webauthn_util_cls=HackWebauthnUtil)
 def test_verify_wan(app, client, get_message):

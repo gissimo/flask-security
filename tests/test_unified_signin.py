@@ -1323,6 +1323,31 @@ def test_next(app, client, get_message):
     assert "/post_login" in response.location
 
 
+def test_us_verify_form_next(app, client, get_message):
+    # /us-verify should honor form.next and validate it (issue #1108)
+    set_email(app)
+    us_authenticate(client)
+
+    response = client.get("/us-verify?next=/profile")
+    assert b'name="next"' in response.data
+    assert b'value="/profile"' in response.data
+
+    response = client.post(
+        "/us-verify",
+        data=dict(passcode="password", next="/profile"),
+        follow_redirects=False,
+    )
+    assert check_location(app, response.location, "/profile")
+
+    response = client.post(
+        "/us-verify",
+        data=dict(passcode="password", next="http://evil.example/phish"),
+        follow_redirects=False,
+    )
+    assert response.status_code == 200
+    assert get_message("INVALID_REDIRECT") in response.data
+
+
 @pytest.mark.registerable()
 @pytest.mark.confirmable()
 @pytest.mark.settings(requires_confirmation_error_view="/confirm")

@@ -739,7 +739,7 @@ class LogoutForm(Form):
         return True
 
 
-class VerifyForm(Form, PasswordFormMixin):
+class VerifyForm(Form, PasswordFormMixin, NextFormMixin):
     """The verify authentication form"""
 
     submit = SubmitField(get_form_field_label("verify_password"))
@@ -747,6 +747,8 @@ class VerifyForm(Form, PasswordFormMixin):
     def __init__(self, *args: t.Any, user: UserMixin, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
         self.user: UserMixin = user
+        if request and not self.next.data:
+            self.next.data = request.args.get("next", "")
 
     def validate(self, **kwargs: t.Any) -> bool:
         if not super().validate(**kwargs):  # pragma: no cover
