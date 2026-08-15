@@ -26,6 +26,8 @@ Features & Improvements
 
 Fixes
 +++++
+- (:issue:`1108`) ``/verify`` and ``/us-verify`` forms now include the optional
+  ``next`` field so form-posted redirect URLs are validated and preserved.
 - (:issue:`1212`) Newly introduced :py:meth:`.UserMixin.is_locked` logic is inverted.
 - (:pr:`1234`) Fix for GHSA-f66q-9rf6-8795 - WebAuthn reauthentication freshness bypass. (tonghuaroot)
 - (:issue:`1244`) Fix login form remember me checkbox.

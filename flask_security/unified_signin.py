@@ -284,10 +284,15 @@ class UnifiedSigninForm(_UnifiedPassCodeForm, NextFormMixin):
         return True
 
 
-class UnifiedVerifyForm(_UnifiedPassCodeForm):
+class UnifiedVerifyForm(_UnifiedPassCodeForm, NextFormMixin):
     """Verify authentication.
     This is for freshness 'reauthentication' required.
     """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if request and not self.next.data:
+            self.next.data = request.args.get("next", "")
 
     def validate(self, **kwargs: t.Any) -> bool:
         self.user = current_user
