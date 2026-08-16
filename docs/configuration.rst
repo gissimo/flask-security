@@ -909,6 +909,8 @@ Login/Logout
     returned (if request was a form post). For a JSON request, a 400 response will
     be returned.
 
+    Default: ``False``
+
     .. danger::
         Be sure to not configure ``"GET"`` as an accepted method since that is not
         CSRF protected.
@@ -1046,6 +1048,13 @@ Registerable
 
     .. versionadded:: 4.1.0
 
+.. py:data:: SECURITY_USERNAME_ALLOWED_CHARS
+
+    Define which unicode categories are used to validate usernames.
+
+    Default: ``["L", "N"]``
+
+    .. versionadded:: 5.9.0
 
 .. py:data:: SECURITY_USERNAME_MIN_LENGTH
 
@@ -1060,14 +1069,6 @@ Registerable
     Maximum length of a username.
 
     Default: ``32``
-
-    .. versionadded:: 4.1.0
-
-.. py:data:: SECURITY_USERNAME_NORMALIZE_FORM
-
-    Usernames, by default, are normalized using the Python unicodedata.normalize() method.
-
-    Default: ``"NFKD"``
 
     .. versionadded:: 4.1.0
 
@@ -2162,6 +2163,9 @@ Additional relevant configuration variables:
 
 Social Login (OAuth)
 --------------------
+    This integrates Flask-Security with authlib. Be sure to specify authlib in
+    your dependency file.
+
     .. versionadded:: 5.1.0
 
 .. py:data:: SECURITY_OAUTH_ENABLE
@@ -2261,7 +2265,7 @@ Refresh Tokens
     Default: ``timedelta(days=90)``
 .. py:data:: SECURITY_REFRESH_TOKEN_MAX_IDLE
 
-    Specifies a timedelta used to compute the date the refresh token will
+    Specifies a timedelta used to compute the date the refresh token will be
     considered expired due to non-use.
 
     Default: ``timedelta(days=7)``
@@ -2273,7 +2277,7 @@ Refresh Tokens
     Default: ``True``
 .. py:data:: SECURITY_REFRESH_TOKEN_CLEANUP_REVOKED
 
-    If True then expired refresh tokens database trackers will be deleted
+    If True then revoked refresh tokens database trackers will be deleted
     whenever the user creates a new one (re-authenticates)
 
     Default: ``False``
@@ -2497,7 +2501,6 @@ The default messages and error levels can be found in ``core.py``.
 * ``SECURITY_MSG_USER_DOES_NOT_EXIST``
 * ``SECURITY_MSG_USERNAME_CHANGE``
 * ``SECURITY_MSG_USERNAME_INVALID_LENGTH``
-* ``SECURITY_MSG_USERNAME_ILLEGAL_CHARACTERS``
 * ``SECURITY_MSG_USERNAME_DISALLOWED_CHARACTERS``
 * ``SECURITY_MSG_USERNAME_NOT_PROVIDED``
 * ``SECURITY_MSG_USERNAME_ALREADY_ASSOCIATED``
@@ -2506,6 +2509,7 @@ The default messages and error levels can be found in ``core.py``.
 * ``SECURITY_MSG_WEBAUTHN_NAME_REQUIRED``
 * ``SECURITY_MSG_WEBAUTHN_NAME_INUSE``
 * ``SECURITY_MSG_WEBAUTHN_NAME_NOT_FOUND``
+* ``SECURITY_MSG_WEBAUTHN_NAME_DISALLOWED_CHARACTERS``
 * ``SECURITY_MSG_WEBAUTHN_CREDENTIAL_DELETED``
 * ``SECURITY_MSG_WEBAUTHN_REGISTER_SUCCESSFUL``
 * ``SECURITY_MSG_WEBAUTHN_CREDENTIAL_ID_INUSE``

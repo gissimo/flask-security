@@ -1895,7 +1895,7 @@ def test_name_clean(app, client, get_message):
     response = client.post("wan-register", json=dict(name=name, usage="secondary"))
     assert response.status_code == 400
     assert (
-        get_message("INVALID_INPUT")
+        get_message("WEBAUTHN_NAME_DISALLOWED_CHARACTERS")
         == response.json["response"]["field_errors"]["name"][0].encode()
     )
 

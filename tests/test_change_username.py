@@ -241,9 +241,10 @@ def test_custom_post_change_view(client):
 
 def test_my_validator(app, sqlalchemy_datastore):
     class MyUsernameUtil(UsernameUtil):
-        def check_username(self, username):
+        def validate(self, username):
             if username == "nowayjose":
-                return "Are you crazy?"
+                return "Are you crazy?", None
+            return username, None
 
     init_app_with_options(
         app,
@@ -287,7 +288,7 @@ def test_username_normalize(app, client):
     assert response.status_code == 200
 
 
-@pytest.mark.settings(username_normalize_form=None, username_enable=True)
+@pytest.mark.settings(input_normalize_form=None, username_enable=True)
 def test_username_no_normalize(app, client):
     """Verify that can log in with original but not normalized if have
     disabled normalization

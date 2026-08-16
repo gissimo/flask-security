@@ -1500,17 +1500,20 @@ def handle_already_auth(form, payload=None):
 
 def input_svn(
     value: str,
-    allowed_categories: list[str],
+    allowed_categories: list[str] | None,
     normalize_form: t.Literal["NFC", "NFD", "NFKC", "NFKD"] | None,
-) -> str | None:
+) -> t.Tuple[t.Literal["ok", "illegal", "unallowed"], str | None]:
     """
     Used to sanitize, validate, and normalize (user/form) input
 
-    allowed_categories: list of allowed categories (using unicodedata.category()).
+    allowed_categories: list of allowed categories (input to unicodedata.category()).
 
-    normalize_form: input to unicodedata.normalize() (or None)
+    normalize_form: input to unicodedata.normalize().
 
-    Returns None if error (illegal characters)
+    Returns a tuple of ("reason", cleaned_input)
+    If cleaned_input is None, "reason" will be why. The "unallowed" response
+    is dependent on the input 'allowed_categories' which normally is from a config
+    variable.
 
     .. versionadded:: 5.9.0
     """
@@ -1518,10 +1521,11 @@ def input_svn(
 
     sanitized = nh3.clean(value.strip(), tags=set())
     if sanitized != value.strip():
-        return None
-    cats = [unicodedata.category(c)[0] for c in sanitized]
-    if any([cat not in allowed_categories for cat in cats]):
-        return None
+        return "illegal", None
+    if allowed_categories:
+        cats = [unicodedata.category(c)[0] for c in sanitized]
+        if any([cat not in allowed_categories for cat in cats]):
+            return "unallowed", None
     if normalize_form:
-        return unicodedata.normalize(normalize_form, sanitized)
-    return sanitized
+        return "ok", unicodedata.normalize(normalize_form, sanitized)
+    return "ok", sanitized
