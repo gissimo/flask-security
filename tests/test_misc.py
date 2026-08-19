@@ -610,17 +610,14 @@ def test_send_mail_context(app, sqlalchemy_datastore, outbox):
         assert matcher.group(1) == "bar-mail"
 
 
-@pytest.mark.babel()
-@pytest.mark.app_settings(babel_default_locale="fr_FR")
+@pytest.mark.babel(babel_default_locale="cic_US", test_xlations=True)
 def test_xlation(app, client):
-    assert check_xlation(app, "fr_FR"), "You must run python setup.py compile_catalog"
-
     response = client.get("/login")
-    assert b'<label for="password">Mot de passe</label>' in response.data
+    assert b'<label for="password">Password OKAY!</label>' in response.data
     response = authenticate(client)
     assert response.status_code in [302, 303]
     response = authenticate(client, follow_redirects=True)
-    assert b"Bienvenue matt@lp.com" in response.data
+    assert b"Welcome OKAY! matt@lp.com" in response.data
 
 
 @pytest.mark.babel()
@@ -647,72 +644,45 @@ def test_myxlation(app, sqlalchemy_datastore, pytestconfig):
     assert b"Passe - no-worky" in response.data
 
 
-@pytest.mark.babel()
-@pytest.mark.app_settings(babel_default_locale="fr_FR")
-def test_myxlation_complete(app, sqlalchemy_datastore, pytestconfig):
-    # Test having own translations and not using builtin.
-    pytest.importorskip("flask_babel")
-    i18n_dirname = [
-        os.path.join(pytestconfig.rootdir, "tests/translations"),
-    ]
-    init_app_with_options(
-        app, sqlalchemy_datastore, **{"SECURITY_I18N_DIRNAME": i18n_dirname}
-    )
-
-    assert check_xlation(app, "fr_FR"), "You must run python setup.py compile_catalog"
+@pytest.mark.babel(babel_default_locale="fr_FR", test_xlations=True)
+def test_myxlation_complete(app, client):
+    # Test having own translations and not using builtin
 
     app.config["SECURITY_MSG_INVALID_PASSWORD"] = ("Password no-worky", "error")
-
-    client = app.test_client()
     response = client.post("/login", data=dict(email="matt@lp.com", password="forgot"))
     assert b"Passe - no-worky" in response.data
 
 
-@pytest.mark.babel()
-@pytest.mark.app_settings(babel_default_locale="de_DE")
+@pytest.mark.babel(babel_default_locale="cic_US", test_xlations=True)
 def test_isstring_xlation(app, client):
     # Test that IsString's error message is properly localized.
-    assert check_xlation(app, "de_DE"), "You must run python setup.py compile_catalog"
-
     response = client.post(
         "/login", json=dict(email={"not": "a string"}, password="password")
     )
     assert response.status_code == 400
-    assert (
-        "Ungültige Eingabe für die angeforderte Ressource"
-        in response.json["response"]["errors"][0]
-    )
+    assert "OKAY!" in response.json["response"]["errors"][0]
 
 
-@pytest.mark.babel()
-@pytest.mark.app_settings(babel_default_locale="fr_FR")
+@pytest.mark.babel(babel_default_locale="cic_US", test_xlations=True)
 def test_form_labels(app, sqlalchemy_datastore):
     app.security = Security()
     app.security.init_app(app, sqlalchemy_datastore)
-    assert check_xlation(app, "fr_FR"), "You must run python setup.py compile_catalog"
 
     with app.test_request_context():
-        rform = RegisterForm()
-        assert str(rform.password.label.text) == "Mot de passe"
-        assert str(rform.password_confirm.label.text) == "Confirmer le mot de passe"
-        assert str(rform.email.label.text) == "Adresse email"
-        assert str(rform.submit.label.text) == "Inscription"
+        form = RegisterForm()
+        for field in ["password", "password_confirm", "email", "submit"]:
+            assert "OKAY!" in str(getattr(form, field).label.text)
 
         form = LoginForm()
-        assert str(form.password.label.text) == "Mot de passe"
-        assert str(form.remember.label.text) == "Se souvenir de moi"
-        assert str(form.email.label.text) == "Adresse email"
-        assert str(form.submit.label.text) == "Connexion"
+        for field in ["password", "remember", "email", "submit"]:
+            assert "OKAY!" in str(getattr(form, field).label.text)
 
         form = ChangePasswordForm()
-        assert str(form.password.label.text) == "Mot de passe"
-        assert str(form.new_password.label.text) == "Nouveau mot de passe"
-        assert str(form.new_password_confirm.label.text) == "Confirmer le mot de passe"
-        assert str(form.submit.label.text) == "Changer le mot de passe"
+        for field in ["password", "new_password", "new_password_confirm", "submit"]:
+            assert "OKAY!" in str(getattr(form, field).label.text)
 
 
-@pytest.mark.babel()
-@pytest.mark.app_settings(babel_default_locale="fr_FR")
+@pytest.mark.babel(babel_default_locale="fr_FR", test_xlations=True)
 def test_wtform_xlation(app, sqlalchemy_datastore):
     # Make sure wtform xlations work
     class MyLoginForm(LoginForm):
@@ -722,11 +692,10 @@ def test_wtform_xlation(app, sqlalchemy_datastore):
 
     app.security = Security()
     app.security.init_app(app, datastore=sqlalchemy_datastore, login_form=MyLoginForm)
-    assert check_xlation(app, "fr_FR"), "You must run python setup.py compile_catalog"
 
     client = app.test_client()
     response = client.get("/login")
-    assert b'<label for="password">Mot de passe</label>' in response.data
+    assert b'<label for="password">Mot de passe OKAY!</label>' in response.data
     data = dict(
         email="matt@lp.com", password="", remember="y", fixed_length="waytoolong"
     )
@@ -743,7 +712,7 @@ def test_wtform_xlation(app, sqlalchemy_datastore):
 
 
 @pytest.mark.changeable()
-@pytest.mark.babel()
+@pytest.mark.babel(test_xlations=True)
 def test_per_request_xlate(app, client):
     from flask import request, session
 
@@ -763,30 +732,33 @@ def test_per_request_xlate(app, client):
     babel.locale_selector_func = get_locale
     babel.locale_selector = get_locale  # Flask-Babel >= 3.0.0
 
-    response = client.get("/login", headers=[("Accept-Language", "fr")])
-    assert b'<label for="password">Mot de passe</label>' in response.data
+    response = client.get("/login", headers=[("Accept-Language", "cic_US")])
+    assert b'<label for="password">Password OKAY!</label>' in response.data
     # make sure template contents get xlated (not just form).
-    assert b"<h1>Connexion</h1>" in response.data
+    assert b"<h1>Login OKAY!</h1>" in response.data
 
     data = dict(email="matt@lp.com", password="", remember="y")
-    response = client.post("/login", data=data, headers=[("Accept-Language", "fr")])
+    response = client.post("/login", data=data, headers=[("Accept-Language", "cic_US")])
     assert response.status_code == 200
 
     # verify errors are xlated
-    assert b"Merci d&#39;indiquer un mot de passe" in response.data
+    assert b"Password not provided OKAY!" in response.data
 
     # log in correctly - this should set locale in session
     data = dict(email="matt@lp.com", password="password", remember="y")
     response = client.post(
-        "/login", data=data, headers=[("Accept-Language", "fr")], follow_redirects=True
+        "/login",
+        data=data,
+        headers=[("Accept-Language", "cic_US")],
+        follow_redirects=True,
     )
     assert response.status_code == 200
 
     # make sure further requests always get correct xlation w/o sending header
     response = client.get("/change", follow_redirects=True)
     assert response.status_code == 200
-    assert b"Nouveau mot de passe" in response.data
-    assert b"<h1>Changer le mot de passe</h1>" in response.data
+    assert b"<title>Change Password OKAY!</title>" in response.data
+    assert b"<h1>Change Password OKAY!</h1>" in response.data
 
     # try JSON
     response = client.post(
@@ -796,7 +768,7 @@ def test_per_request_xlate(app, client):
     )
     assert response.status_code == 400
     assert response.json["response"]["field_errors"]["new_password"] == [
-        "Merci d'indiquer un mot de passe"
+        "Password not provided OKAY!"
     ]
 
 

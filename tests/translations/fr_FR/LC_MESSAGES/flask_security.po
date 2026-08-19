@@ -3,3 +3,6 @@ msgstr ""
 
 msgid "Password no-worky"
 msgstr "Passe - no-worky"
+
+msgid "Password"
+msgstr "Mot de passe OKAY!"

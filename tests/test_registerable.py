@@ -11,7 +11,6 @@ from flask import Flask
 from tests.conftest import v2_param
 from tests.test_utils import (
     authenticate,
-    check_xlation,
     get_form_input_value,
     get_form_input,
     init_app_with_options,
@@ -162,12 +161,9 @@ def test_form_csrf(app, client):
 
 
 @pytest.mark.confirmable()
-@pytest.mark.app_settings(babel_default_locale="fr_FR")
-@pytest.mark.babel()
+@pytest.mark.babel(babel_default_locale="cic_US", test_xlations=True)
 def test_xlation(app, client, get_message_local, outbox):
     # Test form and email translation
-    assert check_xlation(app, "fr_FR"), "You must run python setup.py compile_catalog"
-
     confirmation_token = []
 
     @user_registered.connect_via(app)
@@ -177,8 +173,11 @@ def test_xlation(app, client, get_message_local, outbox):
     response = client.get("/register", follow_redirects=True)
     with app.test_request_context():
         # Check header
-        assert f'<h1>{localize_callback("Register")}</h1>'.encode() in response.data
+        header = localize_callback("Register")
+        assert "OKAY!" in header  # ensures actual translation
+        assert f"<h1>{header}</h1>".encode() in response.data
         submit = localize_callback(_default_field_labels["register"])
+        assert "OKAY!" in submit
         assert f'value="{submit}"'.encode() in response.data
 
     response = client.post(
@@ -192,21 +191,21 @@ def test_xlation(app, client, get_message_local, outbox):
     )
 
     with app.test_request_context():
-        assert (
-            get_message_local("CONFIRM_REGISTRATION", email="me@fr.com").encode("utf-8")
-            in response.data
-        )
+        flash = get_message_local("CONFIRM_REGISTRATION", email="me@fr.com")
+        assert "OKAY!" in flash
+        assert flash.encode() in response.data
         assert b"Home Page" in response.data
         assert len(outbox) == 1
-        assert (
-            localize_callback(app.config["SECURITY_EMAIL_SUBJECT_REGISTER"])
-            in outbox[0].subject
-        )
+        subj = localize_callback(app.config["SECURITY_EMAIL_SUBJECT_REGISTER"])
+        assert "OKAY!" in subj
+        assert subj in outbox[0].subject
+
         lc = localize_callback(
             'Use <a href="%(confirmation_link)s">this link</a> to confirm your email'
             " address.",
             confirmation_link=f"http://localhost/confirm/{confirmation_token[0]}",
         )
+        assert "OKAY!" in lc
         assert lc in outbox[0].alts["html"]
 
 

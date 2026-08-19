@@ -23,6 +23,7 @@ from flask_security import (
     tf_profile_changed,
     uia_email_mapper,
 )
+from flask_security.utils import localize_callback
 from tests.test_utils import (
     SmsBadSender,
     SmsTestSender,
@@ -30,7 +31,6 @@ from tests.test_utils import (
     capture_flashes,
     capture_send_code_requests,
     check_location,
-    check_xlation,
     get_form_action,
     get_form_input_value,
     get_session,
@@ -1614,18 +1614,18 @@ def test_post_setup_redirect(app, client):
     assert check_location(app, response.location, "/post_setup_view")
 
 
-@pytest.mark.app_settings(babel_default_locale="fr_FR")
-@pytest.mark.babel()
+@pytest.mark.babel(babel_default_locale="cic_US", test_xlations=True)
 def test_xlation(app, client, get_message_local):
     # Test method translation
-    assert check_xlation(app, "fr_FR"), "You must run python setup.py compile_catalog"
 
     # login as gal2 which has 'authenticator' set up
     response = authenticate(client, email="gal2@lp.com", follow_redirects=True)
     with app.test_request_context():
-        existing = (
-            "Veuillez saisir votre code d'authentification généré via: authentificateur"
+        existing = localize_callback(
+            "Please enter your authentication code generated via: %(method)s",
+            method="authenticator",
         )
+        assert "OKAY!" in existing
         assert markupsafe.escape(existing).encode() in response.data
     with app.app_context():
         # generate 'code' as authenticator would and complete authentication
@@ -1634,7 +1634,10 @@ def test_xlation(app, client, get_message_local):
     client.post("/tf-validate", data=dict(code=code), follow_redirects=True)
     response = client.get("/tf-setup", follow_redirects=True)
     with app.test_request_context():
-        existing = "Méthode à deux facteurs actuellement configurée : authentificateur"
+        existing = localize_callback(
+            "Currently setup two-factor method: %(method)s", method="authenticator"
+        )
+        assert "OKAY!" in existing
         assert markupsafe.escape(existing).encode() in response.data
 
 

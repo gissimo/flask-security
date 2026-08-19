@@ -59,12 +59,6 @@ from flask_security.utils import localize_callback
 
 from tests.test_utils import convert_bool_option, populate_data
 
-NO_BABEL = False
-try:
-    from flask_babel import Babel
-except ImportError:
-    NO_BABEL = True
-
 # enable testing both register form options
 v2_param = [
     pytest.param(dict(use_register_v2=True), id="use_register_v2-True"),
@@ -114,7 +108,7 @@ def find_sqlite_connections():
 
 
 @pytest.fixture()
-def app(request):
+def app(request, pytestconfig):
     # assert not find_sqlite_connections()  # hopefully find tests that don't clean up
     app = Flask(__name__)
     app.response_class = Response
@@ -209,8 +203,16 @@ def app(request):
     # use babel marker to signify tests that need babel extension.
     babel = marker_getter("babel")
     if babel:
-        if NO_BABEL:
-            raise pytest.skip("Requires Babel")
+        pytest.importorskip("flask_babel")
+        from flask_babel import Babel
+
+        if locale := babel.kwargs.get("babel_default_locale", None):
+            app.config["BABEL_DEFAULT_LOCALE"] = locale
+        if babel.kwargs.get("test_xlations", None):
+            i18n_dirname = [
+                os.path.join(pytestconfig.rootdir, "tests/translations"),
+            ]
+            app.config["SECURITY_I18N_DIRNAME"] = i18n_dirname
         Babel(app)
 
     csrf = marker_getter("csrf")

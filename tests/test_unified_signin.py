@@ -29,7 +29,6 @@ from tests.test_utils import (
     capture_reset_password_requests,
     check_location,
     check_signals,
-    check_xlation,
     get_form_action,
     get_session,
     is_authenticated,
@@ -2251,35 +2250,28 @@ def test_propagate_next_tf(app, client):
     assert "/im-in" in response.location
 
 
-@pytest.mark.app_settings(babel_default_locale="fr_FR")
-@pytest.mark.babel()
+@pytest.mark.babel(babel_default_locale="cic_US", test_xlations=True)
 def test_xlation(app, client, get_message_local):
-    # Test method translation
-    assert check_xlation(app, "fr_FR"), "You must run python setup.py compile_catalog"
-
+    # Test setup method translation
     set_email(app)
     us_authenticate(client)
     response = client.get("us-setup")
-    # note we test against REAL translations - don't use same code as view uses.
+
     with app.test_request_context():
         assert markupsafe.escape("SMS").encode() in response.data
         p = [
-            "Options de connexion actuellement actives : mot de passe et e-mail.",
-            "Options de connexion actuellement actives : e-mail et mot de passe.",
+            "Currently active sign in options: email OKAY!, password OKAY!. OKAY!",
+            "Currently active sign in options: password OKAY!, email OKAY!. OKAY!",
         ]
         assert any(markupsafe.escape(s).encode() in response.data for s in p)
 
 
-@pytest.mark.parametrize("app", v2_param, indirect=True)
 @pytest.mark.registerable()
 @pytest.mark.settings(password_required=False)
-@pytest.mark.app_settings(babel_default_locale="fr_FR")
-@pytest.mark.babel()
+@pytest.mark.babel(babel_default_locale="cic_US", test_xlations=True)
 def test_empty_password_xlate(app, client, get_message):
     # test that if no password (and no other setup method) we get correct xlated
     # template
-    assert check_xlation(app, "fr_FR"), "You must run python setup.py compile_catalog"
-
     data = dict(email="trp@lp.com", password="", password_confirm="")
     # register w/o password - this will automatically set up 'email'
     client.post("/register", data=data, follow_redirects=True)
@@ -2289,7 +2281,7 @@ def test_empty_password_xlate(app, client, get_message):
     with app.test_request_context():
         assert (
             markupsafe.escape(
-                "Options de connexion actuellement actives : e-mail."
+                "Currently active sign in options: email OKAY!. OKAY!"
             ).encode()
             in response.data
         )
@@ -2299,7 +2291,7 @@ def test_empty_password_xlate(app, client, get_message):
     with app.test_request_context():
         assert (
             markupsafe.escape(
-                "Options de connexion actuellement actives : aucune."
+                "Currently active sign in options: none OKAY!. OKAY!"
             ).encode()
             in response.data
         )
@@ -2308,7 +2300,7 @@ def test_empty_password_xlate(app, client, get_message):
     with app.test_request_context():
         assert (
             markupsafe.escape(
-                "Options de connexion actuellement actives : aucune."
+                "Currently active sign in options: none OKAY!. OKAY!"
             ).encode()
             in response.data
         )
