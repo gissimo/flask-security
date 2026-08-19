@@ -30,7 +30,7 @@ Features & Improvements
 - (:issue:`536` Add template path configuration variables for all email templates.
 - (:issue:`1254`) Webauthn/passkey name input value is now sanitized and normalized. A new utility method
   :py:meth:`flask_security.input_svn` is now used and is available for applications to use.
-- (:pr:`xxx`) Username validation and normalization now uses the new :py:meth:`flask_security.input_svn` utility. This has some
+- (:pr:`1271`) Username validation and normalization now uses the new :py:meth:`flask_security.input_svn` utility. This has some
   backwards compatibility concerns - see below.
 - (:pr:`1259`) Allow redirects to exactly :py:data:`SECURITY_REDIRECT_BASE_DOMAIN` by adding '.' to :py:data:`SECURITY_REDIRECT_ALLOWED_SUBDOMAINS`.
 
@@ -55,6 +55,7 @@ Docs and Chores
 - (:issue:`1208`) Remove support for Pony ORM
 - (:pr:`1240`) Remove deprecated get_token_status() and convert uses to check_and_get_token_status()
 - (:pr:`1252`) Replace ``bleach`` (deprecated/unmaintained) with ``nh3`` for username sanitization (tkfoss)
+- (:pr:`xx`) Improve translation tests to not use real french translations
 
 Backwards Compatibility Concerns
 +++++++++++++++++++++++++++++++++

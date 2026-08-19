@@ -142,15 +142,14 @@ def test_cli_createuser_errors(script_info):
     assert "Email not provided" in result.output
 
 
-@pytest.mark.babel()
-@pytest.mark.app_settings(babel_default_locale="fr_FR")
+@pytest.mark.babel(babel_default_locale="cic_US", test_xlations=True)
 def test_cli_locale(script_info):
     runner = CliRunner()
     result = runner.invoke(
         users_create, ["--password", "battery staple"], obj=script_info
     )
     assert result.exit_code == 2
-    assert "Merci d'indiquer une adresse email" in result.output
+    assert "OKAY!" in result.output
 
 
 def test_cli_createrole(script_info):
