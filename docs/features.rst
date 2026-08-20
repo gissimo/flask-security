@@ -226,7 +226,7 @@ WebAuthn/Passkeys
 **This feature is in Beta - mostly due to it being brand new and little to no production soak time**
 
 WebAuthn is a standardized protocol that connects authenticators (such as YubiKey and mobile biometrics)
-with websites. If :ref:`configured<configuration:WebAuthn>`, Flask-Security supports using WebAuthn credentials (aka passkeys) as either 'first' or 'secondary'
+with websites. If :ref:`configured<configuration:WebAuthn/Passkeys>`, Flask-Security supports using WebAuthn credentials (aka passkeys) as either 'first' or 'secondary'
 authenticators. Please read :ref:`webauthn_topic` for more details.
 
 Email Change
