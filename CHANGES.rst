@@ -23,8 +23,8 @@ Features & Improvements
 - (:pr:`1235`) Change default :py:data:`SECURITY_LOGOUT_METHODS` to be just ``"POST"``
 - (:issue:`1228`) Change default ``csrf`` and ``tf_validity`` cookie config to ``secure=True``
 - (:issue:`1228`) The ``tf_validity`` cookie name is now configurable via :py:data:`SECURITY_TWO_FACTOR_VALIDITY_COOKIE_NAME`
-- (:issue:`1237`) Add support for CSRF on logout
-- (:pr:`1241`) Convert all _WITHIN configuration variable to use timedelta
+- (:issue:`1237`) Add support for CSRF on logout (default ``False``)
+- (:pr:`1241`) Convert all _WITHIN configuration variables to use timedelta
 - (:issue:`1153`) Enable localization of %(within)s variables using humanize
 - (:pr:`1249`) Add link expiration to confirmation and reset password email templates.
 - (:issue:`536` Add template path configuration variables for all email templates.
@@ -37,7 +37,7 @@ Features & Improvements
 Fixes
 +++++
 - (:issue:`1108`) ``/verify`` and ``/us-verify`` forms now include the optional
-  ``next`` field so form-posted redirect URLs are validated and preserved.
+  ``next`` field so form-posted redirect URLs are validated and preserved. (DSeaStar)
 - (:issue:`1212`) Newly introduced :py:meth:`.UserMixin.is_locked` logic is inverted.
 - (:pr:`1234`) Fix for GHSA-f66q-9rf6-8795 - WebAuthn reauthentication freshness bypass. (tonghuaroot)
 - (:issue:`1244`) Fix login form remember me checkbox.
@@ -55,7 +55,7 @@ Docs and Chores
 - (:issue:`1208`) Remove support for Pony ORM
 - (:pr:`1240`) Remove deprecated get_token_status() and convert uses to check_and_get_token_status()
 - (:pr:`1252`) Replace ``bleach`` (deprecated/unmaintained) with ``nh3`` for username sanitization (tkfoss)
-- (:pr:`xx`) Improve translation tests to not use real french translations
+- (:pr:`1273`) Improve translation tests to not use real french translations
 
 Backwards Compatibility Concerns
 +++++++++++++++++++++++++++++++++
@@ -80,7 +80,7 @@ Backwards Compatibility Concerns
 - Username sanitization now uses ``nh3`` instead of ``bleach``. If you enabled
   :py:data:`SECURITY_USERNAME_ENABLE` you must now install ``nh3`` (included in the
   ``common`` extra) rather than ``bleach``.
-- Webauthn names are now sanitized, validated for certain allowable characters
+- Webauthn names are now sanitized, validated for certain allowable characters,
   and normalized. It is possible that some existing names could now be
   considered illegal and won't match (so can't be deleted via API). The allowed
   character categories can be set with :py:data:`SECURITY_WAN_NAME_ALLOWED_CHARS`.
@@ -101,6 +101,25 @@ Notes
 - The refresh token feature requires a new DB model - FsRefreshTracker - which must
   be added by the application. This model has been added to the `fsqla` and `sqla`
   all-inclusive models and their respective versions have been bumped.
+
+Version 5.8.2
+-------------
+
+Released August 11, 2026
+
+Fixes
++++++
+- (:pr:`1265`) Fix for GHSA-f66q-9rf6-8795 - WebAuthn reauthentication freshness bypass. (tonghuaroot)
+- (:issue:`1263`) :py:data:`SECURITY_CACHE_CONTROL` directives were added to every
+  application response instead of just responses from Flask-Security endpoints
+  as documented. (Ceirced)
+- (:issue:`1212`) Newly introduced :py:meth:`.UserMixin.is_locked` logic is inverted.
+- (:issue:`1244`) Fix login form remember me checkbox.
+
+Backwards Compatibility Concerns
++++++++++++++++++++++++++++++++++
+- The fix for the inverted `is_locked` logic will require any application using it
+  to invert their logic.
 
 Version 5.8.1
 -------------

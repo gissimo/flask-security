@@ -191,7 +191,7 @@ def test_xlation(app, client, get_message_local, outbox):
         assert "OKAY!" in subj
         assert subj in outbox[0].subject
 
-        body = localize_callback("Your username has been changed")
+        body = localize_callback("Your username has been changed.")
         assert "OKAY!" in body
         # assert str(markupsafe.escape(body)) in outbox[0].alts["html"]
         assert body in outbox[0].body

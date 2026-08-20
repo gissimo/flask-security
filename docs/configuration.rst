@@ -1866,6 +1866,9 @@ Passwordless
 
 This feature is DEPRECATED as of 5.0.0. Please use unified signin feature instead.
 
+.. note::
+    The passwordless feature DOES NOT support two-factor authentication.
+
 .. py:data:: SECURITY_PASSWORDLESS
 
     Specifies if Flask-Security should enable the passwordless login feature.
@@ -1931,8 +1934,8 @@ Trackable
 
     Default: ``False``
 
-WebAuthn
---------------
+WebAuthn/Passkeys
+-----------------
 
     .. versionadded:: 5.0.0
 
