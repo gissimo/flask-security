@@ -9,8 +9,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security 3.1.0\n"
 "Report-Msgid-Bugs-To: info@inveniosoftware.org\n"
-"POT-Creation-Date: 2026-08-19 14:21-0700\n"
-"PO-Revision-Date: 2026-05-02 11:51+0200\n"
+"POT-Creation-Date: 2026-08-21 12:03+0200\n"
+"PO-Revision-Date: 2026-08-21 12:02+0200\n"
 "Last-Translator: Ariel von Barnekow <avbarnekow@gmail.com>\n"
 "Language: ca_ES\n"
 "Language-Team: \n"
@@ -26,7 +26,7 @@ msgstr "Confirma la teva nova adreça de correu electrònic"
 
 #: flask_security/core.py:329
 msgid "Login Required"
-msgstr "Per poder veure la pàgina sol·licitada és necessari iniciar la sessió"
+msgstr "Cal iniciar la sessió"
 
 #: flask_security/core.py:330
 msgid "Welcome"
@@ -239,12 +239,12 @@ msgstr "Codi invàlid"
 
 #: flask_security/core.py:537
 msgid "Value entered is not valid for the field"
-msgstr ""
+msgstr "El valor introduït no és vàlid per al camp"
 
 #: flask_security/core.py:541
 #, python-format
 msgid "Value entered must be less than %(length) characters"
-msgstr ""
+msgstr "El valor introduït ha de ser inferior a %(length) caràcters"
 
 #: flask_security/core.py:544
 msgid "Password not provided"
@@ -446,6 +446,8 @@ msgid ""
 "Passkey nicknames can contain only letters, numbers, and limited "
 "punctuation."
 msgstr ""
+"Els sobrenoms de la clau d'accés només poden contenir lletres, números i "
+"puntuació limitada."
 
 #: flask_security/core.py:662
 #, python-format
@@ -844,7 +846,7 @@ msgstr "Continua amb %(provider)s"
 #: flask_security/templates/security/logout_user.html:1
 #: flask_security/templates/security/logout_user.html:7
 msgid "Confirm Sign Out"
-msgstr ""
+msgstr "Confirma la desconnexió"
 
 #: flask_security/templates/security/mf_recovery.html:1
 #: flask_security/templates/security/mf_recovery.html:7
@@ -1146,16 +1148,18 @@ msgstr "Iniciar sessió ara"
 #, python-format
 msgid "Use <a href=\"%(reset_link)s\">this link</a> to reset your password."
 msgstr ""
+"Utilitza <a href=\"%(reset_link)s\">aquest enllaç</a> per restablir la "
+"teva contrasenya."
 
 #: flask_security/templates/security/email/reset_instructions.txt:9
 #, python-format
 msgid "Use %(reset_link)s to reset your password."
-msgstr ""
+msgstr "Utilitza %(reset_link)s per restablir la teva contrasenya."
 
 #: flask_security/templates/security/email/reset_notice.html:1
 #: flask_security/templates/security/email/reset_notice.txt:1
 msgid "Your password has been reset."
-msgstr ""
+msgstr "La teva contrasenya ha estat restablerta."
 
 #: flask_security/templates/security/email/two_factor_instructions.html:1
 #: flask_security/templates/security/email/two_factor_instructions.txt:1
@@ -1175,7 +1179,7 @@ msgstr "Pots iniciar la sessió al teu compte utilitzant el següent codi: %(tok
 #: flask_security/templates/security/email/two_factor_instructions.txt:5
 #, python-format
 msgid "This code will expire in %(within)s."
-msgstr ""
+msgstr "Aquest codi caducarà en %(within)s."
 
 #: flask_security/templates/security/email/two_factor_rescue.html:1
 #: flask_security/templates/security/email/two_factor_rescue.txt:1
@@ -1186,7 +1190,7 @@ msgstr "no es pot accedir al compte de correu"
 #: flask_security/templates/security/email/us_instructions.txt:11
 #, python-format
 msgid "You can sign in to your account using the following code: %(code)s"
-msgstr ""
+msgstr "Pots iniciar sessió al teu compte utilitzant el següent codi: %(code)s"
 
 #: flask_security/templates/security/email/us_instructions.html:13
 #, python-format
@@ -1197,7 +1201,7 @@ msgstr "O utilitza aquest enllaç: <a href=\"%(login_link)s\">Inicia la sessió<
 #: flask_security/templates/security/email/us_instructions.txt:15
 #, python-format
 msgid "This code/link will expire in %(within)s."
-msgstr ""
+msgstr "Aquest codi/enllaç caducarà en %(within)s."
 
 #: flask_security/templates/security/email/us_instructions.txt:13
 #, python-format
