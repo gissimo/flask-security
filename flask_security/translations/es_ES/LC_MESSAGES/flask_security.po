@@ -11,8 +11,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Flask-Security 5.6.2\n"
 "Report-Msgid-Bugs-To: jwag956@github.com\n"
-"POT-Creation-Date: 2026-08-19 14:21-0700\n"
-"PO-Revision-Date: 2026-05-04 15:40+0200\n"
+"POT-Creation-Date: 2026-08-21 12:03+0200\n"
+"PO-Revision-Date: 2026-08-21 12:01+0200\n"
 "Last-Translator: Ariel von Barnekow  <avbarnekow@gmail.com>\n"
 "Language: es_ES\n"
 "Language-Team: \n"
@@ -244,12 +244,12 @@ msgstr "Código inválido"
 
 #: flask_security/core.py:537
 msgid "Value entered is not valid for the field"
-msgstr ""
+msgstr "El valor ingresado no es válido para el campo"
 
 #: flask_security/core.py:541
 #, python-format
 msgid "Value entered must be less than %(length) characters"
-msgstr ""
+msgstr "El valor ingresado debe ser menor que %(length) caracteres"
 
 #: flask_security/core.py:544
 msgid "Password not provided"
@@ -447,6 +447,8 @@ msgid ""
 "Passkey nicknames can contain only letters, numbers, and limited "
 "punctuation."
 msgstr ""
+"Los apodos de la clave pueden contener solo letras, números y puntuación "
+"limitada."
 
 #: flask_security/core.py:662
 #, python-format
@@ -845,7 +847,7 @@ msgstr "Continuar con %(provider)s"
 #: flask_security/templates/security/logout_user.html:1
 #: flask_security/templates/security/logout_user.html:7
 msgid "Confirm Sign Out"
-msgstr ""
+msgstr "Confirmar cierre de sesión"
 
 #: flask_security/templates/security/mf_recovery.html:1
 #: flask_security/templates/security/mf_recovery.html:7
@@ -1148,16 +1150,18 @@ msgstr "Inicia sesión ahora"
 #, python-format
 msgid "Use <a href=\"%(reset_link)s\">this link</a> to reset your password."
 msgstr ""
+"Utiliza <a href=\"%(reset_link)s\">este enlace</a> para restablecer tu "
+"contraseña."
 
 #: flask_security/templates/security/email/reset_instructions.txt:9
 #, python-format
 msgid "Use %(reset_link)s to reset your password."
-msgstr ""
+msgstr "Utiliza %(reset_link)s para restablecer tu contraseña."
 
 #: flask_security/templates/security/email/reset_notice.html:1
 #: flask_security/templates/security/email/reset_notice.txt:1
 msgid "Your password has been reset."
-msgstr ""
+msgstr "Tu contraseña ha sido restablecida."
 
 #: flask_security/templates/security/email/two_factor_instructions.html:1
 #: flask_security/templates/security/email/two_factor_instructions.txt:1
@@ -1179,7 +1183,7 @@ msgstr ""
 #: flask_security/templates/security/email/two_factor_instructions.txt:5
 #, python-format
 msgid "This code will expire in %(within)s."
-msgstr ""
+msgstr "Este código expirará en %(within)s."
 
 #: flask_security/templates/security/email/two_factor_rescue.html:1
 #: flask_security/templates/security/email/two_factor_rescue.txt:1
@@ -1191,6 +1195,8 @@ msgstr "no puede acceder a la cuenta de correo"
 #, python-format
 msgid "You can sign in to your account using the following code: %(code)s"
 msgstr ""
+"Puedes iniciar sesión en tu cuenta utilizando el siguiente código: "
+"%(code)s"
 
 #: flask_security/templates/security/email/us_instructions.html:13
 #, python-format
@@ -1201,7 +1207,7 @@ msgstr "O puedes utilizar este enlace: <a href=\"%(login_link)s\">Autenticarse</
 #: flask_security/templates/security/email/us_instructions.txt:15
 #, python-format
 msgid "This code/link will expire in %(within)s."
-msgstr ""
+msgstr "Este código/enlace expirará en %(within)s."
 
 #: flask_security/templates/security/email/us_instructions.txt:13
 #, python-format
