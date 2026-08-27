@@ -112,7 +112,8 @@ exclude = ["docs/_build/"]
 [tool.djlint]
     ignore="H005,H006"  # lang, img height/width
 
-[tool.pyright]
+[tool.basedpyright]
     include=["flask_security", "tests/view_scaffold.py"]
-    analyzeUnannotatedFunctions = "none"
+    analyzeUnannotatedFunctions = false
     reportMissingImports = false
+    failOnWarnings = false

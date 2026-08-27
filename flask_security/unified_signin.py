@@ -57,11 +57,11 @@ from .forms import (
     Form,
     NextFormMixin,
     RequiredLocalize,
-    build_form_from_request,
-    build_form,
+    _build_form_from_request,
+    _build_form,
     form_errors_munge,
-    generic_message,
-    get_form_field_label,
+    _generic_message,
+    _get_form_field_label,
     get_form_field_xlate,
     IsString,
     IsStringOrInt,
@@ -162,17 +162,17 @@ class _UnifiedPassCodeForm(Form):
 
     # PasswordField so it doesn't show, no autocomplete since it might be a password
     # (could also be a passcode).
-    passcode = PasswordField(
-        get_form_field_label("passcode"),
+    passcode: PasswordField = PasswordField(
+        _get_form_field_label("passcode"),
         render_kw={
             "placeholder": get_form_field_xlate(_("Code or Password")),
             "autocomplete": "off",
         },
         validators=[IsStringOrInt()],
     )
-    submit = SubmitField(get_form_field_label("submit"))
+    submit: SubmitField = SubmitField(_get_form_field_label("submit"))
 
-    chosen_method = RadioField(
+    chosen_method: RadioField = RadioField(
         _("Available Methods"),
         choices=[
             ("email", get_form_field_xlate(_("Via email"))),
@@ -180,9 +180,9 @@ class _UnifiedPassCodeForm(Form):
         ],
         validators=[IsString(), validators.Optional()],
     )
-    submit_send_code = SubmitField(get_form_field_label("sendcode"))
+    submit_send_code: SubmitField = SubmitField(_get_form_field_label("sendcode"))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
 
     def validate(self, **kwargs: t.Any) -> bool:
@@ -254,18 +254,18 @@ class UnifiedSigninForm(_UnifiedPassCodeForm, NextFormMixin):
     For either identity/password or request and enter code.
     """
 
-    identity = StringField(
-        get_form_field_label("identity"),
+    identity: StringField = StringField(
+        _get_form_field_label("identity"),
         validators=[IsString(), RequiredLocalize()],
     )
-    remember = BooleanField(
-        get_form_field_label("remember_me"),
+    remember: BooleanField = BooleanField(
+        _get_form_field_label("remember_me"),
         default=lambda: cv("DEFAULT_REMEMBER_ME", app=current_app),
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
-        self.requires_confirmation = False
+        self.requires_confirmation: bool = False
 
     def validate(self, **kwargs: t.Any) -> bool:
         if not super().validate(**kwargs):
@@ -289,7 +289,7 @@ class UnifiedVerifyForm(_UnifiedPassCodeForm, NextFormMixin):
     This is for freshness 'reauthentication' required.
     """
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
         if request and not self.next.data:
             self.next.data = request.args.get("next", "")
@@ -306,19 +306,19 @@ class UnifiedVerifyForm(_UnifiedPassCodeForm, NextFormMixin):
 class UnifiedSigninSetupForm(Form):
     """Setup form"""
 
-    setup_choices = [
-        ("email", get_form_field_label("email_method")),
+    setup_choices: list[tuple[str, str]] = [
+        ("email", _get_form_field_label("email_method")),
         (
             "authenticator",
-            get_form_field_label("authapp_method"),
+            _get_form_field_label("authapp_method"),
         ),
-        ("sms", get_form_field_label("sms_method")),
+        ("sms", _get_form_field_label("sms_method")),
     ]
-    chosen_method = RadioField(
+    chosen_method: RadioField = RadioField(
         get_form_field_xlate(_("Setup additional sign in option")),
         validate_choice=False,
     )
-    delete_choices = [
+    delete_choices: list[tuple[str, str]] = [
         ("email", get_form_field_xlate("Delete email option")),
         (
             "authenticator",
@@ -327,15 +327,15 @@ class UnifiedSigninSetupForm(Form):
         ("sms", get_form_field_xlate("Delete SMS option")),
     ]
 
-    delete_method = SelectMultipleField(
+    delete_method: SelectMultipleField = SelectMultipleField(
         label=get_form_field_xlate(_("Delete active sign in option")),
         option_widget=CheckboxInput(),
         validate_choice=False,
     )
-    phone = TelField(get_form_field_label("phone"), validators=[IsString()])
-    submit = SubmitField(get_form_field_label("submit"))
+    phone: TelField = TelField(_get_form_field_label("phone"), validators=[IsString()])
+    submit: SubmitField = SubmitField(_get_form_field_label("submit"))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
 
     def validate(self, **kwargs: t.Any) -> bool:
@@ -394,8 +394,8 @@ class UnifiedSigninSetupValidateForm(Form):
     user: UserMixin
     totp_secret: str
 
-    passcode = StringField(
-        get_form_field_label("passcode"),
+    passcode: StringField = StringField(
+        _get_form_field_label("passcode"),
         render_kw={
             "autocomplete": "one-time-code",
             "type": "text",
@@ -403,9 +403,11 @@ class UnifiedSigninSetupValidateForm(Form):
         },
         validators=[IsStringOrInt(), RequiredLocalize()],
     )
-    submit = SubmitField(get_form_field_label("submitcode"), id="submit-code")
+    submit: SubmitField = SubmitField(
+        _get_form_field_label("submitcode"), id="submit-code"
+    )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
 
     def validate(self, **kwargs: t.Any) -> bool:
@@ -449,7 +451,7 @@ def us_signin_send_code() -> ResponseValue:
     This takes an identity (as configured in USER_IDENTITY_ATTRIBUTES)
     and a method request to send a code.
     """
-    form = t.cast(UnifiedSigninForm, build_form_from_request("us_signin_form"))
+    form = t.cast(UnifiedSigninForm, _build_form_from_request("us_signin_form"))
     form.submit_send_code.data = True
     form.submit.data = False
 
@@ -469,7 +471,7 @@ def us_signin_send_code() -> ResponseValue:
 
         if not msg:
             # Make sure same response as non-setup method below
-            do_flash(*generic_message("CODE_HAS_BEEN_SENT", "GENERIC_US_SIGNIN"))
+            do_flash(*_generic_message("CODE_HAS_BEEN_SENT", "GENERIC_US_SIGNIN"))
 
         return _security.render_template(
             cv("US_SIGNIN_TEMPLATE"),
@@ -517,7 +519,7 @@ def us_verify_send_code() -> ResponseValue:
     """
     Send code during verify. POST only.
     """
-    form = t.cast(UnifiedVerifyForm, build_form_from_request("us_verify_form"))
+    form = t.cast(UnifiedVerifyForm, _build_form_from_request("us_verify_form"))
     form.submit_send_code.data = True
     form.submit.data = False
 
@@ -567,7 +569,7 @@ def us_signin() -> ResponseValue:
     This takes an identity (as configured in USER_IDENTITY_ATTRIBUTES)
     and a passcode (password or OTP).
     """
-    form = t.cast(UnifiedSigninForm, build_form_from_request("us_signin_form"))
+    form = t.cast(UnifiedSigninForm, _build_form_from_request("us_signin_form"))
     form.submit.data = True
     form.submit_send_code.data = False
     code_methods = _compute_code_methods()
@@ -649,7 +651,7 @@ def us_verify() -> ResponseValue:
     will have filled in ?next=xxx - which we want to carefully not lose as we
     go through these steps.
     """
-    form = t.cast(UnifiedVerifyForm, build_form_from_request("us_verify_form"))
+    form = t.cast(UnifiedVerifyForm, _build_form_from_request("us_verify_form"))
     form.submit.data = True
     form.submit_send_code.data = False
 
@@ -691,7 +693,7 @@ def us_verify() -> ResponseValue:
         code_methods=code_methods,
         skip_login_menu=True,
         has_webauthn_verify_credential=webauthn_available,
-        wan_verify_form=build_form("wan_verify_form"),
+        wan_verify_form=_build_form("wan_verify_form"),
         **_security._run_ctx_processor("us_verify"),
     )
 
@@ -715,9 +717,9 @@ def us_verify_link() -> ResponseValue:
     user = _datastore.find_user(fs_uniquifier=fs_uniquifier)
     if not user or not user.active:
         if not user:
-            m, c = generic_message("USER_DOES_NOT_EXIST", "GENERIC_AUTHN_FAILED")
+            m, c = _generic_message("USER_DOES_NOT_EXIST", "GENERIC_AUTHN_FAILED")
         else:
-            m, c = generic_message("DISABLED_ACCOUNT", "GENERIC_AUTHN_FAILED")
+            m, c = _generic_message("DISABLED_ACCOUNT", "GENERIC_AUTHN_FAILED")
         if cv("REDIRECT_BEHAVIOR") == "spa":
             return redirect(get_url(cv("LOGIN_ERROR_VIEW"), qparams={c: m}))
         do_flash(m, c)
@@ -730,7 +732,7 @@ def us_verify_link() -> ResponseValue:
         user=user,
         window=cv("US_TOKEN_VALIDITY"),
     ):
-        m, c = generic_message("INVALID_CODE", "GENERIC_AUTHN_FAILED")
+        m, c = _generic_message("INVALID_CODE", "GENERIC_AUTHN_FAILED")
         user.track_failed_authn("passcode")
 
         if cv("REDIRECT_BEHAVIOR") == "spa":
@@ -797,7 +799,7 @@ def us_setup() -> ResponseValue:
     use a timed signed token to pass along state.
     GET - retrieve current info (json) or form.
     """
-    form = t.cast(UnifiedSigninSetupForm, build_form_from_request("us_setup_form"))
+    form = t.cast(UnifiedSigninSetupForm, _build_form_from_request("us_setup_form"))
 
     setup_methods = _compute_setup_methods()
     active_methods = _compute_active_methods(current_user)
@@ -937,7 +939,7 @@ def us_setup() -> ResponseValue:
             code_sent=form.chosen_method.data in _compute_code_methods(),
             chosen_method=form.chosen_method.data,
             us_setup_form=form,
-            us_setup_validate_form=build_form("us_setup_validate_form"),
+            us_setup_validate_form=_build_form("us_setup_validate_form"),
             **qrcode_values,
             state=state_token,
             **_security._run_ctx_processor("us_setup"),
@@ -983,7 +985,7 @@ def us_setup_validate(token: str) -> ResponseValue:
     """
     form = t.cast(
         UnifiedSigninSetupValidateForm,
-        build_form_from_request("us_setup_validate_form"),
+        _build_form_from_request("us_setup_validate_form"),
     )
 
     expired, invalid, state = check_and_get_token_status(
@@ -1038,8 +1040,12 @@ def us_setup_validate(token: str) -> ResponseValue:
 
 
 def us_send_security_token(
-    user, method, totp_secret, phone_number, send_magic_link=False
-):
+    user: UserMixin,
+    method: str,
+    totp_secret: str,
+    phone_number: str | None,
+    send_magic_link: bool = False,
+) -> None:
     """Generate and send the security code.
 
     :param user: The user to send the code to
@@ -1057,7 +1063,7 @@ def us_send_security_token(
 
     .. versionadded:: 3.4.0
     """
-    code = _security.totp_factory.generate_totp_password(totp_secret)
+    code: str | None = _security.totp_factory.generate_totp_password(totp_secret)
 
     if method == "email":
         login_link = None
@@ -1089,7 +1095,7 @@ def us_send_security_token(
         # Still go ahead and notify signal receivers that they requested it.
         code = None
     us_security_token_sent.send(
-        current_app._get_current_object(),
+        current_app._get_current_object(),  # type: ignore[attr-defined]
         _async_wrapper=current_app.ensure_sync,
         user=user,
         method=method,

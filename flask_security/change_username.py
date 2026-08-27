@@ -36,8 +36,8 @@ from wtforms import Field, SubmitField
 from .decorators import auth_required
 from .forms import (
     Form,
-    build_form_from_request,
-    get_form_field_label,
+    _build_form_from_request,
+    _get_form_field_label,
 )
 from .proxies import _security, _datastore
 from .quart_compat import get_quart_status
@@ -71,9 +71,9 @@ class ChangeUsernameForm(Form):
     """
 
     username: t.ClassVar[Field]
-    submit = SubmitField(label=get_form_field_label("submit"))
+    submit: SubmitField = SubmitField(label=_get_form_field_label("submit"))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
 
 
@@ -87,7 +87,7 @@ def change_username() -> ResponseValue:
     payload: dict[str, t.Any]
 
     form: ChangeUsernameForm = t.cast(
-        ChangeUsernameForm, build_form_from_request("change_username_form")
+        ChangeUsernameForm, _build_form_from_request("change_username_form")
     )
 
     if form.validate_on_submit():

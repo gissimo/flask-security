@@ -19,7 +19,7 @@ Features & Improvements
 +++++++++++++++++++++++
 - (:issue:`1206`) Add support for refresh tokens. See :ref:`token_topic`
 - (:pr:`1233`) Change :py:data:`SECURITY_TOKEN_MAX_AGE` from an int to a timedelta.
-  Also - change default from ``never expire`` to 15 minutes.
+  Also - *change default from ``never expire`` to 15 minutes*.
 - (:pr:`1235`) Change default :py:data:`SECURITY_LOGOUT_METHODS` to be just ``"POST"``
 - (:issue:`1228`) Change default ``csrf`` and ``tf_validity`` cookie config to ``secure=True``
 - (:issue:`1228`) The ``tf_validity`` cookie name is now configurable via :py:data:`SECURITY_TWO_FACTOR_VALIDITY_COOKIE_NAME`
@@ -48,6 +48,7 @@ Fixes
 - (:issue:`1263`) :py:data:`SECURITY_CACHE_CONTROL` directives were added to every
   application response instead of just responses from Flask-Security endpoints
   as documented.
+- (:issue:`1272`) Properly re-export public methods (using redundant symbol aliases).
 
 
 Docs and Chores
@@ -56,6 +57,7 @@ Docs and Chores
 - (:pr:`1240`) Remove deprecated get_token_status() and convert uses to check_and_get_token_status()
 - (:pr:`1252`) Replace ``bleach`` (deprecated/unmaintained) with ``nh3`` for username sanitization (tkfoss)
 - (:pr:`1273`) Improve translation tests to not use real french translations
+- (:pr:`1275`) Update Spanish and Catalan translations. (arielvb)
 
 Backwards Compatibility Concerns
 +++++++++++++++++++++++++++++++++

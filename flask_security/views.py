@@ -60,8 +60,8 @@ from .forms import (
     ForgotPasswordForm,
     LoginForm,
     LogoutForm,
-    build_form_from_request,
-    build_form,
+    _build_form_from_request,
+    _build_form,
     form_errors_munge,
     ResetPasswordForm,
     SendConfirmationForm,
@@ -99,8 +99,8 @@ from .tf_plugin import (
     tf_set_validity_token_cookie,
 )
 from .twofactor import (
-    complete_two_factor_process,
-    set_rescue_options,
+    _complete_two_factor_process,
+    _set_rescue_options,
     tf_clean_session,
     tf_disable,
 )
@@ -152,9 +152,15 @@ else:
 
 if t.TYPE_CHECKING:  # pragma: no cover
     from flask.typing import ResponseValue
+    from flask_security import UserMixin
 
 
-def default_render_json(payload, code, headers, user):
+def default_render_json(
+    payload: dict[str, t.Any],
+    code: int,
+    headers: dict[str, str] | None,
+    user: UserMixin | None,
+) -> ResponseValue:
     """Default JSON response handler."""
     # Force Content-Type header to json.
     if headers is None:
@@ -171,7 +177,7 @@ def _ctx(endpoint):
 @unauth_csrf()
 def login() -> ResponseValue:
     """View function for login view"""
-    form = t.cast(LoginForm, build_form_from_request("login_form"))
+    form = t.cast(LoginForm, _build_form_from_request("login_form"))
 
     if is_user_authenticated(current_user):
         return handle_already_auth(
@@ -240,7 +246,9 @@ def login() -> ResponseValue:
 @auth_required(lambda: cv("API_ENABLED_METHODS"))
 def verify():
     """View function which handles a reauthentication request."""
-    form = t.cast(VerifyForm, build_form_from_request("verify_form", user=current_user))
+    form = t.cast(
+        VerifyForm, _build_form_from_request("verify_form", user=current_user)
+    )
 
     if form.validate_on_submit():
         # form may have called verify_and_update_password()
@@ -271,12 +279,12 @@ def verify():
         cv("VERIFY_TEMPLATE"),
         verify_form=form,
         has_webauthn_verify_credential=webauthn_available,
-        wan_verify_form=build_form("wan_verify_form"),
+        wan_verify_form=_build_form("wan_verify_form"),
         **_ctx("verify"),
     )
 
 
-def logout():
+def logout() -> ResponseValue:
     """View function which handles a logout request.
     As part of the refresh_token feature, logout now has a form defined
     which a client can pass a refresh token that will be revoked as part of logout
@@ -291,7 +299,7 @@ def logout():
 
     if is_user_authenticated(current_user):
         form = t.cast(
-            LogoutForm, build_form_from_request("logout_form", user=current_user)
+            LogoutForm, _build_form_from_request("logout_form", user=current_user)
         )
         if cv("LOGOUT_CSRF"):
             try:
@@ -349,7 +357,7 @@ def register() -> ResponseValue:
         form_name = "confirm_register_form"
     else:
         form_name = "register_form"
-    form = build_form_from_request(form_name)
+    form = _build_form_from_request(form_name)
 
     if form.validate_on_submit():
         after_this_request(view_commit)
@@ -402,7 +410,7 @@ def register() -> ResponseValue:
 @unauth_csrf()
 def send_login():
     """View function that sends login instructions for passwordless login"""
-    form = build_form_from_request("passwordless_login_form")
+    form = _build_form_from_request("passwordless_login_form")
 
     if form.validate_on_submit():
         send_login_instructions(form.user)
@@ -463,7 +471,7 @@ def token_login(token):
 def send_confirmation():
     """View function which sends confirmation instructions (/confirm)."""
     form = t.cast(
-        SendConfirmationForm, build_form_from_request("send_confirmation_form")
+        SendConfirmationForm, _build_form_from_request("send_confirmation_form")
     )
 
     if form.validate_on_submit():
@@ -493,7 +501,7 @@ def send_confirmation():
     )
 
 
-def confirm_email(token):
+def confirm_email(token: str) -> ResponseValue:
     """
     View function which handles an email confirmation request.
     This is always a GET from an email - so for 'spa' must always redirect.
@@ -579,7 +587,7 @@ def forgot_password():
     often users stay logged in for a long time and might have forgotten their password
     and might be prompted for it for sensitive operations (/verify).
     """
-    form = t.cast(ForgotPasswordForm, build_form_from_request("forgot_password_form"))
+    form = t.cast(ForgotPasswordForm, _build_form_from_request("forgot_password_form"))
 
     if form.validate_on_submit():
         send_reset_password_instructions(form.user)
@@ -634,7 +642,7 @@ def reset_password(token):
     For POST normal/successful case - return 200 with new authentication token
     For POST error case return 400
     """
-    form = t.cast(ResetPasswordForm, build_form_from_request("reset_password_form"))
+    form = t.cast(ResetPasswordForm, _build_form_from_request("reset_password_form"))
     expired, invalid, form.user = reset_password_token_status(token)
 
     if request.method == "GET":
@@ -733,7 +741,7 @@ def reset_password(token):
 @auth_required(lambda: cv("API_ENABLED_METHODS"))
 def change_password():
     """View function which handles a change password request."""
-    form = t.cast(ChangePasswordForm, build_form_from_request("change_password_form"))
+    form = t.cast(ChangePasswordForm, _build_form_from_request("change_password_form"))
 
     if not current_user.password:
         # This is case where user registered w/o a password - since we can't
@@ -796,7 +804,7 @@ def two_factor_setup():
     state via the session as part of login to show a) who and b) that they successfully
     authenticated.
     """
-    form = t.cast(TwoFactorSetupForm, build_form_from_request("two_factor_setup_form"))
+    form = t.cast(TwoFactorSetupForm, _build_form_from_request("two_factor_setup_form"))
 
     changing = is_user_authenticated(current_user)
     if not changing:
@@ -908,7 +916,7 @@ def two_factor_setup():
             )
         if _security._want_json(request):
             return base_render_json(form, include_user=False, additional=json_response)
-        code_form = build_form("two_factor_verify_code_form")
+        code_form = _build_form("two_factor_verify_code_form")
         return _security.render_template(
             cv("TWO_FACTOR_SETUP_TEMPLATE"),
             two_factor_setup_form=form,
@@ -941,7 +949,7 @@ def two_factor_setup():
         }
         return base_render_json(form, include_user=False, additional=json_response)
 
-    code_form = build_form("two_factor_verify_code_form")
+    code_form = _build_form("two_factor_verify_code_form")
     return _security.render_template(
         cv("TWO_FACTOR_SETUP_TEMPLATE"),
         two_factor_setup_form=form,
@@ -968,7 +976,7 @@ def two_factor_setup_validate(token: str) -> ResponseValue:
     It also is JUST for setting up/changing two factor for an authenticated user.
     """
     form = t.cast(
-        TwoFactorVerifyCodeForm, build_form_from_request("two_factor_verify_code_form")
+        TwoFactorVerifyCodeForm, _build_form_from_request("two_factor_verify_code_form")
     )
 
     expired, invalid, state = check_and_get_token_status(
@@ -1045,7 +1053,7 @@ def two_factor_token_validation():
 
     """
     form = t.cast(
-        TwoFactorVerifyCodeForm, build_form_from_request("two_factor_verify_code_form")
+        TwoFactorVerifyCodeForm, _build_form_from_request("two_factor_verify_code_form")
     )
 
     # state info in session
@@ -1090,7 +1098,7 @@ def two_factor_token_validation():
     form.tf_totp_secret = totp_secret
     if form.validate_on_submit():
         # Success - finish process based on 'changing' and clear all session variables
-        completion_message, token = complete_two_factor_process(
+        completion_message, token = _complete_two_factor_process(
             form.user, pm, totp_secret, changing
         )
 
@@ -1126,8 +1134,8 @@ def two_factor_token_validation():
 
     # if we were trying to validate an existing method
     else:
-        rescue_form = build_form("two_factor_rescue_form")
-        recovery_options = set_rescue_options(rescue_form, form.user)
+        rescue_form = _build_form("two_factor_rescue_form")
+        recovery_options = _set_rescue_options(rescue_form, form.user)
         if _security._want_json(request):
             return base_render_json(
                 form, additional=dict(recovery_options=recovery_options)
@@ -1153,14 +1161,14 @@ def two_factor_rescue():
 
     """
     form = t.cast(
-        TwoFactorRescueForm, build_form_from_request("two_factor_rescue_form")
+        TwoFactorRescueForm, _build_form_from_request("two_factor_rescue_form")
     )
 
     form.user = tf_check_state(["ready"])
     if not form.user:
         return tf_illegal_state(form, cv("TWO_FACTOR_ERROR_VIEW"))
 
-    recovery_options = set_rescue_options(form, form.user)
+    recovery_options = _set_rescue_options(form, form.user)
     rproblem = ""
     if form.validate_on_submit():
         raction = form.help_setup.data
@@ -1199,7 +1207,7 @@ def two_factor_rescue():
             form, include_user=False, additional=dict(recovery_options=recovery_options)
         )
 
-    code_form = build_form("two_factor_verify_code_form")
+    code_form = _build_form("two_factor_verify_code_form")
     return _security.render_template(
         cv("TWO_FACTOR_VERIFY_CODE_TEMPLATE"),
         two_factor_verify_code_form=code_form,
@@ -1219,7 +1227,7 @@ def recover_username():
     """View function for username recovery"""
 
     form = t.cast(
-        UsernameRecoveryForm, build_form_from_request("username_recovery_form")
+        UsernameRecoveryForm, _build_form_from_request("username_recovery_form")
     )
 
     if form.validate_on_submit():
@@ -1251,7 +1259,7 @@ def recover_username():
     )
 
 
-def create_blueprint(app, state, import_name):
+def _create_blueprint(app, state, import_name):
     """Creates the security extension blueprint"""
 
     bp = Blueprint(

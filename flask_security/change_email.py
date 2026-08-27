@@ -27,9 +27,9 @@ from .decorators import auth_required
 from .forms import (
     Form,
     UniqueEmailFormMixin,
-    build_form_from_request,
+    _build_form_from_request,
     form_errors_munge,
-    get_form_field_label,
+    _get_form_field_label,
 )
 from .proxies import _security, _datastore
 from .quart_compat import get_quart_status
@@ -58,12 +58,11 @@ else:
     from flask import redirect
 
 
-class ChangeEmailForm(Form, UniqueEmailFormMixin):
-    submit = SubmitField(label=get_form_field_label("submit"))
+class ChangeEmailForm(UniqueEmailFormMixin, Form):
+    submit: SubmitField = SubmitField(label=_get_form_field_label("submit"))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
-        self.existing_email_user = None
 
 
 @auth_required(
@@ -76,7 +75,7 @@ def change_email() -> ResponseValue:
     payload: dict[str, t.Any]
 
     form: ChangeEmailForm = t.cast(
-        ChangeEmailForm, build_form_from_request("change_email_form")
+        ChangeEmailForm, _build_form_from_request("change_email_form")
     )
 
     if form.validate_on_submit():

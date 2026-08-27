@@ -19,7 +19,7 @@ from flask import request, redirect, session
 
 from .decorators import unauth_csrf
 from .forms import (
-    build_form_from_request,
+    _build_form_from_request,
     get_form_field_xlate,
     Form,
     RadioField,
@@ -48,10 +48,12 @@ if t.TYPE_CHECKING:  # pragma: no cover
 
 
 class TwoFactorSelectForm(Form):
-    which = RadioField(get_form_field_xlate(_("Available Second Factor Methods:")))
-    submit = SubmitField(get_form_field_xlate(_("Select")))
+    which: RadioField = RadioField(
+        get_form_field_xlate(_("Available Second Factor Methods:"))
+    )
+    submit: SubmitField = SubmitField(get_form_field_xlate(_("Select")))
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
 
 
@@ -60,7 +62,7 @@ def tf_select() -> ResponseValue:
     # Ask user which MFA method they want to use.
     # This is used when a user has setup more than one type of 2FA.
     form = t.cast(
-        TwoFactorSelectForm, build_form_from_request("two_factor_select_form")
+        TwoFactorSelectForm, _build_form_from_request("two_factor_select_form")
     )
 
     # This endpoint is unauthenticated - make sure we're in a valid state
