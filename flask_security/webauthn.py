@@ -79,9 +79,9 @@ from .decorators import anonymous_user_required, auth_required, unauth_csrf
 from .forms import (
     Form,
     RequiredLocalize,
-    build_form_from_request,
-    build_form,
-    get_form_field_label,
+    _build_form_from_request,
+    _build_form,
+    _get_form_field_label,
     get_form_field_xlate,
     _setup_methods_xlate,
     IsString,
@@ -139,7 +139,7 @@ class WebAuthnRegisterForm(Form):
         default="secondary",
         validate_choice=True,
     )
-    submit = SubmitField(label=get_form_field_label("submit"), id="wan_register")
+    submit = SubmitField(label=_get_form_field_label("submit"), id="wan_register")
     clean_name: str | None
 
     def validate(self, **kwargs: t.Any) -> bool:
@@ -162,7 +162,7 @@ class WebAuthnRegisterForm(Form):
 
 class WebAuthnRegisterResponseForm(Form):
     credential = HiddenField()
-    submit = SubmitField(label=get_form_field_label("submit"))
+    submit = SubmitField(label=_get_form_field_label("submit"))
 
     # from state
     challenge: str
@@ -228,9 +228,9 @@ class WebAuthnRegisterResponseForm(Form):
 
 
 class WebAuthnSigninForm(Form, NextFormMixin):
-    identity = StringField(get_form_field_label("identity"), validators=[IsString()])
+    identity = StringField(_get_form_field_label("identity"), validators=[IsString()])
     remember = BooleanField(
-        get_form_field_label("remember_me"),
+        _get_form_field_label("remember_me"),
         default=lambda: cv("DEFAULT_REMEMBER_ME", app=current_app),
     )
     submit = SubmitField(label=get_form_field_xlate(_("Start")), id="wan_signin")
@@ -266,7 +266,7 @@ class WebAuthnSigninResponseForm(Form, NextFormMixin):
     """
 
     remember = HiddenField()
-    submit = SubmitField(label=get_form_field_label("submit"))
+    submit = SubmitField(label=_get_form_field_label("submit"))
     credential = HiddenField()
 
     # set by caller
@@ -382,7 +382,7 @@ class WebAuthnDeleteForm(Form):
         validators=[IsString(), RequiredLocalize(message="WEBAUTHN_NAME_REQUIRED")],
         id="delete-name",
     )
-    submit = SubmitField(label=get_form_field_label("delete"))
+    submit = SubmitField(label=_get_form_field_label("delete"))
     clean_name: str | None
 
     def validate(self, **kwargs: t.Any) -> bool:
@@ -403,7 +403,7 @@ class WebAuthnDeleteForm(Form):
 
 
 class WebAuthnVerifyForm(Form):
-    submit = SubmitField(label=get_form_field_label("submit"), id="wan_verify")
+    submit = SubmitField(label=_get_form_field_label("submit"), id="wan_verify")
 
     user: UserMixin
 
@@ -432,7 +432,7 @@ def webauthn_register() -> ResponseValue:
     payload: dict[str, t.Any]
 
     form: WebAuthnRegisterForm = t.cast(
-        WebAuthnRegisterForm, build_form_from_request("wan_register_form")
+        WebAuthnRegisterForm, _build_form_from_request("wan_register_form")
     )
 
     if form.validate_on_submit():
@@ -489,7 +489,7 @@ def webauthn_register() -> ResponseValue:
         return _security.render_template(
             cv("WAN_REGISTER_TEMPLATE"),
             wan_register_form=form,
-            wan_register_response_form=build_form("wan_register_response_form"),
+            wan_register_response_form=_build_form("wan_register_response_form"),
             wan_state=state_token,
             credential_options=json.dumps(co_json),
             **_security._run_ctx_processor("wan_register"),
@@ -526,7 +526,7 @@ def webauthn_register() -> ResponseValue:
     return _security.render_template(
         cv("WAN_REGISTER_TEMPLATE"),
         wan_register_form=form,
-        wan_delete_form=build_form("wan_delete_form"),
+        wan_delete_form=_build_form("wan_delete_form"),
         registered_credentials=current_creds,
         **_security._run_ctx_processor("wan_register"),
     )
@@ -537,7 +537,7 @@ def webauthn_register_response(token: str) -> ResponseValue:
     """Response from browser."""
     form: WebAuthnRegisterResponseForm = t.cast(
         WebAuthnRegisterResponseForm,
-        build_form_from_request("wan_register_response_form"),
+        _build_form_from_request("wan_register_response_form"),
     )
 
     expired, invalid, state = check_and_get_token_status(
@@ -651,7 +651,7 @@ def webauthn_signin() -> ResponseValue:
     else:
         abort(404)
 
-    form = t.cast(WebAuthnSigninForm, build_form_from_request("wan_signin_form"))
+    form = t.cast(WebAuthnSigninForm, _build_form_from_request("wan_signin_form"))
     form.is_secondary = is_secondary
     if form.validate_on_submit():
         o_json, state_token = _signin_common(
@@ -671,7 +671,7 @@ def webauthn_signin() -> ResponseValue:
         return _security.render_template(
             cv("WAN_SIGNIN_TEMPLATE"),
             wan_signin_form=form,
-            wan_signin_response_form=build_form(
+            wan_signin_response_form=_build_form(
                 "wan_signin_response_form",
                 remember=form.remember.data,
                 next=form.next.data,
@@ -687,7 +687,7 @@ def webauthn_signin() -> ResponseValue:
     return _security.render_template(
         cv("WAN_SIGNIN_TEMPLATE"),
         wan_signin_form=form,
-        wan_signin_response_form=build_form("wan_signin_response_form"),
+        wan_signin_response_form=_build_form("wan_signin_response_form"),
         is_secondary=is_secondary,
         **_security._run_ctx_processor("wan_signin"),
     )
@@ -700,7 +700,7 @@ def webauthn_signin_response(token: str) -> ResponseValue:
     ] in ["ready"]
 
     form = t.cast(
-        WebAuthnSigninResponseForm, build_form_from_request("wan_signin_response_form")
+        WebAuthnSigninResponseForm, _build_form_from_request("wan_signin_response_form")
     )
 
     expired, invalid, state = check_and_get_token_status(
@@ -799,7 +799,7 @@ def webauthn_signin_response(token: str) -> ResponseValue:
 )
 def webauthn_delete() -> ResponseValue:
     """Deletes an existing registered credential."""
-    form = t.cast(WebAuthnDeleteForm, build_form_from_request("wan_delete_form"))
+    form = t.cast(WebAuthnDeleteForm, _build_form_from_request("wan_delete_form"))
 
     if form.validate_on_submit():
         # validate made sure form.name.data exists.
@@ -833,7 +833,7 @@ def webauthn_verify() -> ResponseValue:
     will have filled in ?next=xxx - which we want to carefully not lose as we
     go through these steps.
     """
-    form = t.cast(WebAuthnVerifyForm, build_form_from_request("wan_verify_form"))
+    form = t.cast(WebAuthnVerifyForm, _build_form_from_request("wan_verify_form"))
 
     if form.validate_on_submit():
         o_json, state_token = _signin_common(form.user, cv("WAN_ALLOW_AS_VERIFY"))
@@ -844,7 +844,7 @@ def webauthn_verify() -> ResponseValue:
         return _security.render_template(
             cv("WAN_VERIFY_TEMPLATE"),
             wan_verify_form=form,
-            wan_signin_response_form=build_form("wan_signin_response_form"),
+            wan_signin_response_form=_build_form("wan_signin_response_form"),
             wan_state=state_token,
             credential_options=json.dumps(o_json),
             **_security._run_ctx_processor("wan_verify"),
@@ -855,7 +855,7 @@ def webauthn_verify() -> ResponseValue:
     return _security.render_template(
         cv("WAN_VERIFY_TEMPLATE"),
         wan_verify_form=form,
-        wan_signin_response_form=build_form("wan_signin_response_form"),
+        wan_signin_response_form=_build_form("wan_signin_response_form"),
         skip_login_menu=True,
         **_security._run_ctx_processor("wan_verify"),
     )
@@ -864,7 +864,7 @@ def webauthn_verify() -> ResponseValue:
 @auth_required(lambda: cv("API_ENABLED_METHODS"))
 def webauthn_verify_response(token: str) -> ResponseValue:
     form = t.cast(
-        WebAuthnSigninResponseForm, build_form_from_request("wan_signin_response_form")
+        WebAuthnSigninResponseForm, _build_form_from_request("wan_signin_response_form")
     )
 
     expired, invalid, state = check_and_get_token_status(

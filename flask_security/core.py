@@ -56,9 +56,9 @@ from .forms import (
     TwoFactorRescueForm,
     UsernameRecoveryForm,
     VerifyForm,
-    build_username_field,
-    build_register_form,
-    build_login_form,
+    _build_username_field,
+    _build_register_form,
+    _build_login_form,
 )
 from .json import setup_json
 from .mail_util import MailUtil
@@ -114,7 +114,7 @@ from .utils import (
     url_for_security,
     verify_and_update_password,
 )
-from .views import create_blueprint, default_render_json
+from .views import _create_blueprint, default_render_json
 
 if t.TYPE_CHECKING:  # pragma: no cover
     import flask
@@ -956,7 +956,7 @@ class UserMixin(BaseUserMixin):
         webauthn: list[WebAuthnMixin]
         refresh_trackers: list[RefreshTrackerMixin]
 
-        def __init__(self, **kwargs): ...
+        def __init__(self, **kwargs: t.Any): ...
 
     def get_id(self) -> str:
         """Returns the user identification attribute. 'Alternative-token' for
@@ -1892,22 +1892,22 @@ class Security:
             # Add dynamic fields - probably overkill to check if these are our forms.
             fcls = self.forms["register_form"].cls
             if fcls and issubclass(fcls, RegisterFormMixin):
-                fcls.username = build_username_field(app)
+                fcls.username = _build_username_field(app)
             fcls = self.forms["confirm_register_form"].cls
             if fcls and issubclass(fcls, RegisterFormMixin):
-                fcls.username = build_username_field(app)
+                fcls.username = _build_username_field(app)
 
         fcls = self.forms["login_form"].cls
         if fcls and issubclass(fcls, LoginForm):
-            build_login_form(app=app, fcls=fcls)
+            _build_login_form(app=app, fcls=fcls)
 
         # new unified RegisterForm
         fcls = self.forms["register_form"].cls
         if fcls and issubclass(fcls, RegisterFormV2):
-            build_register_form(app=app, fcls=fcls)
+            _build_register_form(app=app, fcls=fcls)
         fcls = self.forms["change_username_form"].cls
         if fcls and issubclass(fcls, ChangeUsernameForm):
-            fcls.username = build_username_field(app=app)
+            fcls.username = _build_username_field(app=app)
 
         # initialize two-factor plugins. Note that each implementation likely
         # has its own feature flag which will control whether it is active or not.
@@ -1925,7 +1925,7 @@ class Security:
         # register our blueprint/endpoints
         bp = None
         if self.register_blueprint:
-            bp = create_blueprint(app, self, __name__)
+            bp = _create_blueprint(app, self, __name__)
             self.two_factor_plugins.create_blueprint(app, bp, self)
             if self.oauthglue:
                 self.oauthglue._create_blueprint(app, bp)

@@ -18,8 +18,8 @@ from flask_login import current_user
 
 from .decorators import anonymous_user_required, auth_required, unauth_csrf
 from .forms import (
-    build_form_from_request,
-    get_form_field_label,
+    _build_form_from_request,
+    _get_form_field_label,
     get_form_field_xlate,
     Form,
     RequiredLocalize,
@@ -140,12 +140,14 @@ class MfRecoveryCodesForm(Form):
     """Generate and fetch recovery codes"""
 
     # show_codes is a GET option., generate_new_codes is a POST option
-    show_codes = SubmitField(get_form_field_xlate(_("Show Recovery Codes")))
-    generate_new_codes = SubmitField(
+    show_codes: SubmitField = SubmitField(
+        get_form_field_xlate(_("Show Recovery Codes"))
+    )
+    generate_new_codes: SubmitField = SubmitField(
         get_form_field_xlate(_("Generate New Recovery Codes"))
     )
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
 
     def validate(self, **kwargs: t.Any) -> bool:
@@ -157,11 +159,11 @@ class MfRecoveryCodesForm(Form):
 class MfRecoveryForm(Form):
     """Accept recovery code for second factor authentication"""
 
-    code = StringField(
+    code: StringField = StringField(
         get_form_field_xlate(_("Recovery Code")),
         validators=[IsString(), RequiredLocalize()],
     )
-    submit = SubmitField(get_form_field_label("submitcode"))
+    submit: SubmitField = SubmitField(_get_form_field_label("submitcode"))
 
     def __init__(self, *args: t.Any, **kwargs: t.Any):
         super().__init__(*args, **kwargs)
@@ -194,7 +196,7 @@ def mf_recovery_codes() -> ResponseValue:
     the form has a show_codes submit button.
     """
     form = t.cast(
-        MfRecoveryCodesForm, build_form_from_request("mf_recovery_codes_form")
+        MfRecoveryCodesForm, _build_form_from_request("mf_recovery_codes_form")
     )
 
     if form.validate_on_submit():
@@ -237,7 +239,7 @@ def mf_recovery():
     User must have already established 2FA
 
     """
-    form = t.cast(MfRecoveryForm, build_form_from_request("mf_recovery_form"))
+    form = t.cast(MfRecoveryForm, _build_form_from_request("mf_recovery_form"))
     form.user = tf_check_state(["ready"])
     if not form.user:
         return tf_illegal_state(form, cv("TWO_FACTOR_ERROR_VIEW"))

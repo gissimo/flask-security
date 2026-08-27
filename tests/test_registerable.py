@@ -1071,7 +1071,7 @@ def test_subclass(app, sqlalchemy_datastore):
     # Test/show how to use multiple inheritance to override individual form fields.
     from wtforms import PasswordField, ValidationError
     from wtforms.validators import DataRequired
-    from flask_security.forms import get_form_field_label
+    from flask_security.forms import _get_form_field_label
 
     def password_validator(form, field):
         if field.data.startswith("PASS"):
@@ -1079,7 +1079,7 @@ def test_subclass(app, sqlalchemy_datastore):
 
     class NewPasswordFormMixinEx:
         password = PasswordField(
-            get_form_field_label("password"),
+            _get_form_field_label("password"),
             validators=[
                 DataRequired(message="PASSWORD_NOT_PROVIDED"),
                 password_validator,

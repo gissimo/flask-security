@@ -36,9 +36,9 @@ from .forms import (
     Form,
     RequiredLocalize,
     SubmitField,
-    get_form_field_label,
+    _get_form_field_label,
     get_form_field_xlate,
-    build_form_from_request,
+    _build_form_from_request,
     IsString,
 )
 from .proxies import _security, _datastore
@@ -197,11 +197,11 @@ class RefreshTokenForm(Form):
     Given a valid refresh token, this will return a new access token.
     """
 
-    refresh_token = StringField(
+    refresh_token: StringField = StringField(
         get_form_field_xlate(_("Refresh Token")),
         validators=[IsString(), RequiredLocalize()],
     )
-    submit = SubmitField(label=get_form_field_label("submit"))
+    submit: SubmitField = SubmitField(label=_get_form_field_label("submit"))
 
     # returned to caller
     refresh_errors: RefreshTokenErrors | None = None
@@ -248,7 +248,7 @@ def refresh() -> ResponseValue:
         abort(400)
 
     form: RefreshTokenForm = t.cast(
-        RefreshTokenForm, build_form_from_request("refresh_token_form")
+        RefreshTokenForm, _build_form_from_request("refresh_token_form")
     )
 
     if form.validate_on_submit():
