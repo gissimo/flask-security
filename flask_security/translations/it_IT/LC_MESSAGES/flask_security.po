@@ -1,8 +1,8 @@
 # Italian (Italy) translations for Flask-Security.
-# Copyright (C) 2025 THE AUTHORS
+# Copyright (C) 2026 THE AUTHORS
 # This file is distributed under the same license as the Flask-Security
 # project.
-# Giorgio Stampa <giorgio.stampa@sanofi.com>, 2025.
+# Giorgio Stampa <22690890+gissimo@users.noreply.github.com>, 2026.
 #
 msgid ""
 msgstr ""
@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: jwag956@github.com\n"
 "POT-Creation-Date: 2026-08-19 14:21-0700\n"
 "PO-Revision-Date: 2026-08-29 14:14+0200\n"
-"Last-Translator: Giorgio Stampa <giorgio.stampa@sanofi.com>\n"
+"Last-Translator: Giorgio Stampa <22690890+gissimo@users.noreply.github.com>\n"
 "Language: it_IT\n"
 "Language-Team: \n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
